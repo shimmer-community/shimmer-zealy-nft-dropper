@@ -361,3 +361,4 @@ webpack-stats.json
 ### Shimmer wallet
 *.stronghold
 *database
+*.csv
