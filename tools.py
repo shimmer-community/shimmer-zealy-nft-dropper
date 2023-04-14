@@ -43,7 +43,6 @@ x_api_key = env("ZEALY_API_KEY")
 subdomain = env("ZEALY_SUBDOMAIN")
 smr_address_quest_id = env("SMR_ADDRESS_QUEST_ID")
 nft_drop_quest_id = env("NFT_DROP_QUEST_ID")
-delta_days = env("DELTA_DAYS")
 
 ##########################
 # Configure Logger
@@ -342,7 +341,7 @@ def mint_nfts(amount):
 def get_available_nfts():
     logger.debug("Checking for available NFTs")
     # Sync account with the node
-    wallet = IotaWallet(wallet_db_name)
+    wallet = IotaWallet(wallet_db_name, client_options, coin_type, secret_manager)
     account = wallet.get_account(shimmer_account_name)
     response = account.sync()
     logger.debug(f'Synced response in get available: {response}')

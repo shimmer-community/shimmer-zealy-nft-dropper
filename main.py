@@ -29,7 +29,7 @@ from tools import (get_zealy_api_data, return_valid_shimmer_addresses, logger,
                    send_nfts, check_if_sent, unique_addresses, subdomain, x_api_key,
                    nft_drop_quest_id, smr_address_quest_id, validate_zealy_api_data,
                    validate_shimmer_address, shimmer_address_hrp, collection_nft_id,
-                   mint_nfts, delta_days)
+                   mint_nfts)
 
 ##########################
 # Start
@@ -158,10 +158,12 @@ def send_to_address(addresses):
     now = datetime.now()
 
     # Add one year to the current time
-    one_year_from_now = now + timedelta(days=int(delta_days))
+    one_year_from_now = now + timedelta(days=int(365))
+    six_months_from_now = now + timedelta(days=int(183))
 
     # Convert the datetime object to Unix timestamp
-    unixtime = int(time.mktime(one_year_from_now.timetuple()))
+    expiration_unixtime = int(time.mktime(one_year_from_now.timetuple()))
+    timelock_unixtime = int(time.mktime(six_months_from_now.timetuple()))
 
 
     # Define the outputs array
@@ -198,14 +200,16 @@ def send_to_address(addresses):
                         continue
                     logger.debug("Address: %s", address)
                     logger.debug("NFT ID: %s", nft_id)
-                    logger.debug("Expiration time: %s", unixtime)
+                    logger.debug("Expiration time: %s", expiration_unixtime)
+                    logger.debug("Timelock time: %s", timelock_unixtime)
                     outputs.append(
                         {
                         "amount": "0",
                         "recipientAddress": address,
                         "unlocks":
                             {
-                              "expirationUnixTime": unixtime,  
+                              "expirationUnixTime": expiration_unixtime,
+                              "timelockUnixTime": timelock_unixtime,
                             },
                         "storageDeposit":
                             {

@@ -357,6 +357,7 @@ webpack-stats.json
 
 .env
 .envs/*
+testaaaavenv
 
 ### Shimmer wallet
 *.stronghold
