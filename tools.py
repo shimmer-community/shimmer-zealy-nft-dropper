@@ -362,8 +362,8 @@ def create_shimmer_profile():
     """Create a new Shimmer wallet profile."""
     logger.debug("I am in create_shimmer_profile")
 
-    # Check if wallet.stronghold exists and exit if present
-    if os.path.isfile("wallet.stronghold"):
+    # Check if zealy.stronghold exists and exit if present
+    if os.path.isfile("zealy.stronghold"):
         logger.info("Profile already exists. We continue.")
         return
     else:
