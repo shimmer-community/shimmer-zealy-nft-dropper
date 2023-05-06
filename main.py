@@ -24,6 +24,7 @@ shimmer_address_hrp, collection_nft_id, mint_nfts, delta_days.
 import time
 from datetime import datetime, timedelta
 import multiprocessing
+import re
 from tools import (get_zealy_api_data, return_valid_shimmer_addresses, logger,
                    basic_checks, create_shimmer_profile, get_available_nfts,
                    send_nfts, check_if_sent, unique_addresses, subdomain, x_api_key,
@@ -91,6 +92,12 @@ def get_smr_address_submitters(status):
     for item in smr_address_quest_completers['data']:
         smr_address_user_id = item['user']['id']
         smr_address = item['submission']['value']
+        # Remove any excessive characters/text from possible input
+        match = re.search(r"smr1\w+", smr_address)
+        if match:
+            smr_address = match.group()
+        else:
+            continue
         smr_address_user_object = (smr_address_user_id, smr_address)
         smr_address_submitters.append(smr_address_user_object)
 
@@ -184,8 +191,8 @@ def send_to_address(addresses):
         nft_ids = get_available_nfts() # update the available NFT IDs
         logger.info("Available NFTs: %s", len(nft_ids))
 
-    # Split addresses into chunks of 127 addresses which is the UTXO limit for Shimmer
-    chunks = [addresses[i:i+127] for i in range(0, len(addresses), 127)]
+    # Split addresses into chunks of 10 addresses
+    chunks = [addresses[i:i+10] for i in range(0, len(addresses), 10)]
 
     for chunk in chunks:
         for address in chunk:
