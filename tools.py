@@ -197,45 +197,42 @@ def write_to_csv(shimmer_receiver_address, nftId, block_id):
     except Exception:
         logger.warning(traceback.format_exc())
 
-def get_zealy_api_data(subdomain, x_api_key, quest_id, status):
-    # page_number = int(request.GET.get("page", 1))
-    # Get quests with quest_id and status "success" from the Crew3 API
+def call_zealy_api(subdomain, x_api_key, api_endpoint, http_method, data=None):
     try:
-        api_url = (
-        f"https://api.zealy.io/communities/{subdomain}/claimed-quests?quest_id={quest_id}&status={status}"
-    )
-        logger.debug(api_url)
+        api_url = f"https://api.zealy.io/communities/{subdomain}/{api_endpoint}"
         headers = {"x-api-key": x_api_key}
-        response = requests.get(api_url, headers=headers)
-        data = response.json()
-        logger.debug(data)
-        return data
+
+        while True:
+            try:
+                if http_method == "GET":
+                    response = requests.get(api_url, headers=headers)
+                elif http_method == "POST":
+                    headers["Content-Type"] = "application/json"
+                    response = requests.post(api_url, headers=headers, json=data)
+                else:
+                    raise ValueError("Invalid HTTP method")
+
+                response.raise_for_status()
+                return response.json()
+            except requests.exceptions.RequestException as e:
+                print(f"RequestException: {e}")
+                print("Retrying in 5 minutes...")
+                time.sleep(300)
     except Exception:
         logger.warning(traceback.format_exc())
+
+def get_zealy_api_data(subdomain, x_api_key, quest_id, status):
+    api_endpoint = f"claimed-quests?quest_id={quest_id}&status={status}"
+    return call_zealy_api(subdomain, x_api_key, api_endpoint, "GET")
 
 def validate_zealy_api_data(subdomain, x_api_key, claimedQuestIds, status, comment):
-    # page_number = int(request.GET.get("page", 1))
-    # Get quests with quest_id and status "success" from the Crew3 API
-    try:
-        api_url = (
-            f"https://api.zealy.io/communities/{subdomain}/claimed-quests/review"
-        )
-        logger.debug(api_url)
-        headers = {
-            "x-api-key": x_api_key,
-            "Content-Type": "application/json"
-        }
-        data = {
-            "status": status,
-            "claimedQuestIds": claimedQuestIds,
-            "comment": comment
-        }
-        response = requests.post(api_url, headers=headers, json=data)
-        response_data = response.json()
-
-        return response_data
-    except Exception:
-        logger.warning(traceback.format_exc())
+    api_endpoint = "claimed-quests/review"
+    data = {
+        "status": status,
+        "claimedQuestIds": claimedQuestIds,
+        "comment": comment
+    }
+    return call_zealy_api(subdomain, x_api_key, api_endpoint, "POST", data)
 
 def unique_addresses(addresses):
     try:
