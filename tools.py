@@ -314,7 +314,7 @@ def mint_nfts(amount):
                         "trait_type": "Year",
                         "value": "2023",
                         "trait_type": "Artist",
-                        "value": "@BingoBongo_ape"
+                        "value": "https://twitter.com/bingobongo_ape"
                         }
                     ]
                 }).encode('utf-8')).hex()
