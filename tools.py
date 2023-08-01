@@ -148,7 +148,7 @@ def send_nfts(outputs):
             # Check if the transaction's networkId is the
             # mainnet (14364762045254553490)
             # testnet (1856588631910923207)
-            if transaction["networkId"] == "1856588631910923207":
+            if transaction["networkId"] == "14364762045254553490":
                 # Get the blockId for this transaction
                 block_id = transaction["blockId"]
                 for item in outputs:
@@ -290,22 +290,34 @@ def mint_nfts(amount):
             # Create the metadata with another index for each
             nft_options = []
             logger.debug(f"Collection NFT address {collection_nft_address}")
+            rarity_attribue_value = ["Common", "Rare", "Legendary"]
+            material_attribue_value = ["Gold", "Silver", "Bronze"]
+            curse_attribute_value = ["The Guardian", "The Legacy", "The Prophecy"]
             for index in range(nft_collection_size):
-                nft_number = index + 1
-                attribue_value = random.randint(42, 69)
+                rarity = random.choice(rarity_attribue_value)
+                material = random.choice(material_attribue_value)
+                curse = random.choice(curse_attribute_value)
                 immutable_metadata = bytes(json.dumps({
                     "standard": "IRC27",
                     "version": "v1.0",
-                    "type": "image/png",
-                    "uri": "ipfs://bafybeicnznoiprv5udy36wlrhqffa7evyoodeweh343dnjvgt3aqn4gwbm",
-                    "name": f"Mudskipper",
-                    "description": "The Mudskipper",
-                    "issuerName": "The Queen",
-                    "collectionName": "The 30y old virgin collection",
+                    "type": "video/mp4",
+                    "uri": "ipfs://bafybeifar3kversqxt3ne7a73wtuguqkivueuqdep7d7vdvza6utwjncxu",
+                    "name": "Anne Bonny Doubloon",
+                    "description": "A prized treasure sought after by brave sailors venturing into the perilous depths of the high seas, with the spirit of the legendary pirate Anne Bonny watching over their journey.",
+                    "issuerName": "TEA - Tangle Ecosystem Association",
+                    "collectionName": "Anne Bonny's Bounty",
                     "attributes": [
                         {
                         "trait_type": "Rarity",
-                        "value": f"{attribue_value}"
+                        "value": rarity
+                        },
+                        {
+                        "trait_type": "Material",
+                        "value": material
+                        },
+                        {
+                        "trait_type": "Curse",
+                        "value": curse
                         }
                     ]
                 }).encode('utf-8')).hex()
@@ -359,7 +371,7 @@ def create_shimmer_profile():
     """Create a new Shimmer wallet profile."""
     logger.debug("I am in create_shimmer_profile")
 
-    # Check if zealy.stronghold exists and exit if present
+    # Check if wallet.stronghold exists and exit if present
     if os.path.isfile("zealy.stronghold"):
         logger.info("Profile already exists. We continue.")
         return
