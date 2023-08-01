@@ -92,7 +92,6 @@ def get_smr_address_submitters(status):
     for item in smr_address_quest_completers['data']:
         smr_address_user_id = item['user']['id']
         smr_address = item['submission']['value']
-        # Remove any excessive characters/text from possible input
         match = re.search(r"smr1\w+", smr_address)
         if match:
             smr_address = match.group()
@@ -169,8 +168,7 @@ def send_to_address(addresses):
     six_months_from_now = now + timedelta(days=int(183))
 
     # Convert the datetime object to Unix timestamp
-    expiration_unixtime = int(time.mktime(one_year_from_now.timetuple()))
-    timelock_unixtime = int(time.mktime(six_months_from_now.timetuple()))
+    timelock_unixtime = 1685743199
 
 
     # Define the outputs array
@@ -191,7 +189,8 @@ def send_to_address(addresses):
         nft_ids = get_available_nfts() # update the available NFT IDs
         logger.info("Available NFTs: %s", len(nft_ids))
 
-    # Split addresses into chunks of 10 addresses
+    # Split addresses into chunks of 127 addresses which is the UTXO limit for Shimmer
+    #chunks = [addresses[i:i+127] for i in range(0, len(addresses), 127)]
     chunks = [addresses[i:i+10] for i in range(0, len(addresses), 10)]
 
     for chunk in chunks:
@@ -207,7 +206,7 @@ def send_to_address(addresses):
                         continue
                     logger.debug("Address: %s", address)
                     logger.debug("NFT ID: %s", nft_id)
-                    logger.debug("Expiration time: %s", expiration_unixtime)
+#                    logger.debug("Expiration time: %s", expiration_unixtime)
                     logger.debug("Timelock time: %s", timelock_unixtime)
                     outputs.append(
                         {
@@ -215,7 +214,6 @@ def send_to_address(addresses):
                         "recipientAddress": address,
                         "unlocks":
                             {
-                              "expirationUnixTime": expiration_unixtime,
                               "timelockUnixTime": timelock_unixtime,
                             },
                         "storageDeposit":
