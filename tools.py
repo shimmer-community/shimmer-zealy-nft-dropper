@@ -148,7 +148,7 @@ def send_nfts(outputs):
             # Check if the transaction's networkId is the
             # mainnet (14364762045254553490)
             # testnet (1856588631910923207)
-            if transaction["networkId"] == "1856588631910923207":
+            if transaction["networkId"] == "14364762045254553490":
                 # Get the blockId for this transaction
                 block_id = transaction["blockId"]
                 for item in outputs:
