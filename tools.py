@@ -197,42 +197,45 @@ def write_to_csv(shimmer_receiver_address, nftId, block_id):
     except Exception:
         logger.warning(traceback.format_exc())
 
-def call_zealy_api(subdomain, x_api_key, api_endpoint, http_method, data=None):
+def get_zealy_api_data(subdomain, x_api_key, quest_id, status):
+    # page_number = int(request.GET.get("page", 1))
+    # Get quests with quest_id and status "success" from the Crew3 API
     try:
-        api_url = f"https://api.zealy.io/communities/{subdomain}/{api_endpoint}"
+        api_url = (
+        f"https://api.zealy.io/communities/{subdomain}/claimed-quests?quest_id={quest_id}&status={status}"
+    )
+        logger.debug(api_url)
         headers = {"x-api-key": x_api_key}
-
-        while True:
-            try:
-                if http_method == "GET":
-                    response = requests.get(api_url, headers=headers)
-                elif http_method == "POST":
-                    headers["Content-Type"] = "application/json"
-                    response = requests.post(api_url, headers=headers, json=data)
-                else:
-                    raise ValueError("Invalid HTTP method")
-
-                response.raise_for_status()
-                return response.json()
-            except requests.exceptions.RequestException as e:
-                print(f"RequestException: {e}")
-                print("Retrying in 5 minutes...")
-                time.sleep(300)
+        response = requests.get(api_url, headers=headers)
+        data = response.json()
+        logger.debug(data)
+        return data
     except Exception:
         logger.warning(traceback.format_exc())
 
-def get_zealy_api_data(subdomain, x_api_key, quest_id, status):
-    api_endpoint = f"claimed-quests?quest_id={quest_id}&status={status}"
-    return call_zealy_api(subdomain, x_api_key, api_endpoint, "GET")
-
 def validate_zealy_api_data(subdomain, x_api_key, claimedQuestIds, status, comment):
-    api_endpoint = "claimed-quests/review"
-    data = {
-        "status": status,
-        "claimedQuestIds": claimedQuestIds,
-        "comment": comment
-    }
-    return call_zealy_api(subdomain, x_api_key, api_endpoint, "POST", data)
+    # page_number = int(request.GET.get("page", 1))
+    # Get quests with quest_id and status "success" from the Crew3 API
+    try:
+        api_url = (
+            f"https://api.zealy.io/communities/{subdomain}/claimed-quests/review"
+        )
+        logger.debug(api_url)
+        headers = {
+            "x-api-key": x_api_key,
+            "Content-Type": "application/json"
+        }
+        data = {
+            "status": status,
+            "claimedQuestIds": claimedQuestIds,
+            "comment": comment
+        }
+        response = requests.post(api_url, headers=headers, json=data)
+        response_data = response.json()
+
+        return response_data
+    except Exception:
+        logger.warning(traceback.format_exc())
 
 def unique_addresses(addresses):
     try:
@@ -290,22 +293,28 @@ def mint_nfts(amount):
             # Create the metadata with another index for each
             nft_options = []
             logger.debug(f"Collection NFT address {collection_nft_address}")
+            # rarity_attribue_value = ["Common", "Rare", "Legendary"]
+            # material_attribue_value = ["Gold", "Silver", "Bronze"]
+            # curse_attribute_value = ["The Guardian", "The Legacy", "The Prophecy"]
             for index in range(nft_collection_size):
-                nft_number = index + 1
-                attribue_value = random.randint(42, 69)
+                # rarity = random.choice(rarity_attribue_value)
+                # material = random.choice(material_attribue_value)
+                # curse = random.choice(curse_attribute_value)
                 immutable_metadata = bytes(json.dumps({
                     "standard": "IRC27",
                     "version": "v1.0",
                     "type": "image/png",
-                    "uri": "ipfs://bafybeicnznoiprv5udy36wlrhqffa7evyoodeweh343dnjvgt3aqn4gwbm",
-                    "name": f"Mudskipper",
-                    "description": "The Mudskipper",
-                    "issuerName": "The Queen",
-                    "collectionName": "The 30y old virgin collection",
+                    "uri": "ipfs://bafybeiapknbq3in35vzc4ystkm4ccm2v63jphgvjaulgdlqkyqfypsil3u",
+                    "name": "Shimmer Community Champion Badge",
+                    "description": "Shimmer Community Champion Badge",
+                    "issuerName": "TEA - Tangle Ecosystem Association",
+                    "collectionName": "Shimmer Community Champion Badges",
                     "attributes": [
                         {
-                        "trait_type": "Rarity",
-                        "value": f"{attribue_value}"
+                        "trait_type": "Year",
+                        "value": "2023",
+                        "trait_type": "Artist",
+                        "value": "@BingoBongo_ape"
                         }
                     ]
                 }).encode('utf-8')).hex()
@@ -335,6 +344,7 @@ def mint_nfts(amount):
         logger.warning(traceback.format_exc())
 
 
+
 def get_available_nfts():
     logger.debug("Checking for available NFTs")
     # Sync account with the node
@@ -359,8 +369,8 @@ def create_shimmer_profile():
     """Create a new Shimmer wallet profile."""
     logger.debug("I am in create_shimmer_profile")
 
-    # Check if zealy.stronghold exists and exit if present
-    if os.path.isfile("zealy.stronghold"):
+    # Check if wallet.stronghold exists and exit if present
+    if os.path.isfile("wallet.stronghold"):
         logger.info("Profile already exists. We continue.")
         return
     else:
