@@ -311,8 +311,6 @@ def mint_nfts(amount):
                     "collectionName": "Shimmer Community Champion Badges",
                     "attributes": [
                         {
-                        "trait_type": "Year",
-                        "value": "2023",
                         "trait_type": "Artist",
                         "value": "https://twitter.com/bingobongo_ape"
                         }
